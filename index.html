@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>1-Hour Dead Fuel Moisture Estimate</title>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 2em auto; }
+    label { display: block; margin: 0.5em 0; }
+    select, input { width: 100%; padding: 0.4em; margin-top: 0.2em; }
+    button { margin-top: 1em; padding: 0.6em 1.2em; }
+    #result { margin-top: 1.5em; font-size: 1.2em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>1-Hour Dead Fuel Moisture Estimate</h1>
+  <form id="calcForm">
+    <label>
+      Dry-Bulb Temp (°F)
+      <input type="number" name="dryBulb" id="dryBulb" step="any" required>
+    </label>
+
+    <label>
+      Relative Humidity (%)
+      <input type="number" name="rh" id="rh" min="0" max="100" step="any" required>
+    </label>
+
+    <label>
+      Month
+      <select name="month" id="month" required>
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+    </label>
+
+    <label>
+      Time (24hr)
+      <select name="timeOfDay" id="timeOfDay" required>
+        <option value="0">08:00 – 09:59</option>
+        <option value="1">10:00 – 11:59</option>
+        <option value="2">12:00 – 13:59</option>
+        <option value="3">14:00 – 15:59</option>
+        <option value="4">16:00 – 17:59</option>
+        <option value="5">18:00 – Sunset</option>
+      </select>
+    </label>
+
+    <label>
+      Shading
+      <select name="shading" id="shading" required>
+        <option value="0">Exposed (&lt;50% shading)</option>
+        <option value="1">Shaded (≥50% shading)</option>
+      </select>
+    </label>
+
+    <label>
+      Aspect
+      <select name="aspect" id="aspect" required>
+        <option value="0">North</option>
+        <option value="1">East</option>
+        <option value="2">South</option>
+        <option value="3">West</option>
+      </select>
+    </label>
+
+    <label>
+      Slope
+      <select name="slope" id="slope" required>
+        <option value="0">0 – 30%</option>
+        <option value="1">31+ %</option>
+      </select>
+    </label>
+
+    <label>
+      Elevation Difference
+      <select name="elevation" id="elevation" required>
+        <option value="0">Below (1000 – 2000 ft)</option>
+        <option value="1">Level (within 1000 ft)</option>
+        <option value="2">Above (1000 – 2000 ft)</option>
+      </select>
+    </label>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="result"></div>
+  <button id="resetButton" style="display:none;">Reset</button>
+
+  <script>
+    const form = document.getElementById("calcForm");
+    const resultDiv = document.getElementById("result");
+    const resetBtn = document.getElementById("resetButton");
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      fetch("/calculate", { method: "POST", body: data })
+        .then(r => r.json())
+        .then(j => {
+          if (j.error) {
+            resultDiv.textContent = "Error: " + j.error;
+          } else {
+            resultDiv.textContent = "Moisture: " + j.moisture + " %";
+            resetBtn.style.display = "inline-block";
+          }
+        })
+        .catch(() => {
+          resultDiv.textContent = "Calculation failed.";
+        });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      resultDiv.textContent = "";
+      resetBtn.style.display = "none";
+    });
+  </script>
+</body>
+</html>
