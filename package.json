@@ -1,11 +1,14 @@
 {
-  "name": "fuel-moisture",
+  "name": "fuel-moisture-estimator",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "build": "g++ -std=c++14 main.cpp behave/src/behave/fineDeadFuelMoistureTool.cpp behave/src/behave/behaveUnits.cpp -Ibehave/src/behave -o fuel_moisture",
+    "start": "npm run build && node server.js"
   },
   "dependencies": {
     "express": "^4.18.2"
   }
 }
+
+
